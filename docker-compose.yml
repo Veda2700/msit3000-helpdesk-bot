@@ -1,0 +1,8 @@
+version: '3.8'
+services:
+  helpdesk-bot:
+    build: .
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    volumes:
+      - ./database:/app/database
