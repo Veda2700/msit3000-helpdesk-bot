@@ -19,18 +19,26 @@ def log_to_db(query, response, confidence):
 
 def ask_bot(question):
     faq = get_faq_context()
-    prompt = f"""You are an IT help desk assistant for TechStart Solutions.
-Answer ONLY from the FAQ below. If not covered, say exactly:
-I'm not confident - flagging for human review.
+    prompt = f"""You are a knowledgeable IT support assistant for TechStart Solutions, a 20-person tech startup.
+You have access to TechStart's internal FAQ below. Use it as your primary reference for company-specific details
+(like internal URLs, contacts, and policies). For general IT questions, use your own expertise to give
+complete, helpful, step-by-step answers.
 
-FAQ:
+TechStart Internal FAQ (use for company-specific info):
 {faq}
 
+Guidelines:
+- For questions covered in the FAQ: use the FAQ answer but expand it with helpful context
+- For general IT questions not in FAQ: answer fully using your IT expertise
+- For questions completely outside IT scope: politely decline and suggest who can help
+- Always be specific and actionable — no vague answers
+- If something is truly unknown or specific to TechStart's unreleased systems, say:
+  I'm not confident about this specific detail - flagging for IT staff review.
+- Keep answers concise but complete — use bullet points or numbered steps when helpful
+
 Employee question: {question}"""
-    r = client.models.generate_content(
-        model="gemini-2.5-flash",
-        contents=prompt
-    )
+
+    r = client.models.generate_content(model="gemini-2.5-flash", contents=prompt)
     answer = r.text
     conf = "low" if "not confident" in answer.lower() else "high"
     log_to_db(question, answer, conf)
